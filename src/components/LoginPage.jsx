@@ -1,13 +1,25 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { loginAction } from "../Redux/actions/authActions";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-  
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+
     const handleSubmit = (e) => {
       e.preventDefault();
-      // Qui fare la chiamata API per il login
+      const userData = {email, password};
+      dispatch(loginAction(userData));
+
       console.log('Email:', email, 'Password:', password);
+      setEmail('');
+      setPassword('');
+
+      navigate('/reservation');
     };
   
     return (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,8 @@ const RegisterPage = () => {
     annualCard: false
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData({
@@ -22,11 +25,17 @@ const RegisterPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Qui fare la chiamata API per la registrazione
+  
     console.log('Dati Registrazione:', formData);
-  };
 
-  return (
+    if(formData.annualCard){
+      window.location.href = "/payment";
+    }else{
+        navigate("/login");
+    }
+     }
+  
+    return (
     <div className="container mt-5">
     <div className="form-container">
       <h2 className="text-white">Registrati su ParkIt</h2>
@@ -61,9 +70,16 @@ const RegisterPage = () => {
             onChange={handleChange}
           />
           <label className="form-check-label text-white">
-            Acquista Tessera Annuale (€10)
+            Acquista Tessera Annuale (€10 con 10 ore di parcheggio in omaggio!)
           </label>
         </div>
+        {formData.annualCard && (
+            <div className="mb-3">
+            <a href="/payment" className="btn btn-warning">
+              Paga con PayPal
+            </a>
+          </div>
+        )}
         <button type="submit" className="btn btn-warning">Registrati</button>
       </form>
     </div>
