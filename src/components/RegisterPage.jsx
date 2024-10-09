@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { registerAction} from "../Redux/actions/registerActions"
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -14,19 +16,25 @@ const RegisterPage = () => {
   });
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     });
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
+    dispatch(registerAction(formData));
+
     console.log('Dati Registrazione:', formData);
+
+   
 
     if(formData.annualCard){
       window.location.href = "/payment";
