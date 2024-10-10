@@ -10,10 +10,12 @@ const rootReducer = combineReducers({
   register: registerReducer,
   user: userReducer,
 //   parking: parkingReducer,
+
 });
 
 const store = configureStore({
   reducer: rootReducer,
+
 });
 
 export default store;

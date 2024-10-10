@@ -4,56 +4,74 @@ import { loginAction } from "../Redux/actions/authActions";
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const url = import.meta.env.VITE_URL;
 
+  const loginFetch = async () => {
+    try {
+      const resp = await fetch(url + "auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password }),
+      });
 
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      const userData = {email, password};
-      dispatch(loginAction(userData));
-
-      console.log('Email:', email, 'Password:', password);
-      setEmail('');
-      setPassword('');
-
-      navigate('/reservation');
-    };
-  
-    return (
-        <div className="container mt-5">
-        <div className="form-container text-white">
-          <h2>Login</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label">Email</label>
-              <input
-                type="email"
-                className="form-control"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Password</label>
-              <input
-                type="password"
-                className="form-control"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button type="submit" className="btn btn-warning">Accedi</button>
-          </form>
-        </div>
-      </div>
-    );
+      if (resp.ok) {
+        const result = await resp.json();
+        console.log(result.accessToken);
+        localStorage.setItem("token", result.accessToken);
+        dispatch(loginAction(email, password));
+        navigate("/reservation");
+      } else {
+        const errorResponse = await resp.json();
+        alert("Utente non registrato!");
+        console.log("Errore dalla risposta del server:", errorResponse);
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Si è verificato un errore durante il login.");
+    }
   };
-  
-    
-  
-  export default LoginPage;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    loginFetch();
+  };
+
+  return (
+    <div className="container mt-5">
+      <div className="form-container text-white">
+        <h2>Login</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input
+              type="email"
+              className="form-control"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input
+              type="password"
+              className="form-control"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit" className="btn btn-warning">
+            Accedi
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;
