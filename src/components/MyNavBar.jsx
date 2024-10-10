@@ -39,8 +39,9 @@ const MyNavBar = () => {
                                 <li className="nav-item">
                                     <Link to="/profile" className="nav-link">Il tuo profilo</Link>
                                 </li>
+                            
                                 <li className="nav-item">
-                                    <Link to="/offers" className="nav-link">Le tue offerte</Link>
+                                    <Link to="/reservation" className="nav-link">Trova il tuo parcheggio!</Link>
                                 </li>
                                 <li className="nav-item">
                                     <Link to="/" className="nav-link" onClick={handleLogout}>Logout</Link>
