@@ -3,48 +3,91 @@ import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useLoadScript } from '@react-google-maps/api';
 
-
-const libraries = ['marker'];
+const libraries = ["marker", "places"];
 
 const ParkingReservation = () => {
-  const [availableSpots, setAvailableSpots] = useState([]);
-  const [selectedSpot, setSelectedSpot] = useState(null);
-  const [timer, setTimer] = useState(900); 
+  const [availableSlots, setAvailableSlots] = useState([]);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [timer, setTimer] = useState(900);
   const [duration, setDuration] = useState(0);
   const pricePerHalfHour = 0.50;
   const [isTimerActive, setIsTimerActive] = useState(false);
+  const API_MAPS = import.meta.env.VITE_API_MAPS;
+  const ID_MAPS = import.meta.env.VITE_ID_MAPS;
 
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: "AIzaSyCoST6ay0prp_AMnUKxXRJI9BoOU8qxBK8",
-    libraries, 
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: API_MAPS,
+    libraries,
+    
   });
 
   useEffect(() => {
-    const fetchedSpots = [
-      { id: 1, name: 'Parcheggio A', location: 'Capo d\'Orlando', coordinates: { lat: 38.1345, lng: 14.7288 } },
-      { id: 2, name: 'Parcheggio B', location: 'Capo d\'Orlando', coordinates: { lat: 38.1350, lng: 14.7290 } },
-      { id: 3, name: 'Parcheggio C', location: 'Capo d\'Orlando', coordinates: { lat: 38.1355, lng: 14.7300 } }
+    const fetchedSlots = [
+      {
+        id: 1,
+        name: "Parcheggio A",
+        location: "Capo d'Orlando",
+        address: "Via Roma, 12",
+        coordinates: { lat: 38.159729, lng: 14.7434719 },
+      },
+      {
+        id: 2,
+        name: "Parcheggio B",
+        location: "Capo d'Orlando",
+        address: "Via Nino Bixio, 20",
+        coordinates: { lat: 38.1561235, lng: 14.7391766 },
+      },
+      {
+        id: 3,
+        name: "Parcheggio C",
+        location: "Capo d'Orlando",
+        address: "Via Del Piave",
+        coordinates: { lat: 38.1589455, lng: 14.7435224 },
+      },
+      {
+        id: 4,
+        name: "Parcheggio D",
+        location: "Capo d'Orlando",
+        address: "Via XXVII Settembre, 102",
+        coordinates: { lat: 38.1592435, lng: 14.7429055 },
+
+      },
+      {
+        id: 5,
+        name: "Parcheggio E",
+        location: "Capo d'Orlando",
+        address: "Via Cristoforo Colombo, 45",
+        coordinates: { lat: 38.1468, lng: 14.7559 },
+      },
+      {
+        id: 6,
+        name: "Parcheggio F",
+        location: "Capo d'Orlando",
+        address: "Piazza Duca degli Abruzzi",
+        coordinates: { lat: 38.1624474, lng: 14.7466575 } ,
+      }
+
+      
     ];
-    setAvailableSpots(fetchedSpots);
+    setAvailableSlots(fetchedSlots);
   }, []);
 
-  const handleSelectSpot = (spot) => {
-    setSelectedSpot(spot);
+  const handleSelectSlot = (Slot) => {
+    setSelectedSlot(Slot);
   };
 
   const handleConfirmReservation = () => {
-    const userConfirmed = window.confirm(`Confermi la prenotazione per ${selectedSpot.name}?`);
+    const userConfirmed = window.confirm(`Confermi la prenotazione per ${selectedSlot.name}?`);
     if (userConfirmed) {
       setIsTimerActive(true);
       setTimer(900);
 
-      
-      fetch(`/api/parking/${selectedSpot.id}/occupy`, { method: 'POST' })
+      fetch(`parkingSlot/${selectedSlot.id}/occupy`, { method: 'POST' })
         .then(response => {
           if (!response.ok) {
             throw new Error('Errore durante la prenotazione del parcheggio');
           }
-          alert(`Prenotazione confermata per ${selectedSpot.name}`);
+          alert(`Prenotazione confermata per ${selectedSlot.name}`);
         })
         .catch(error => {
           console.error('Errore:', error);
@@ -77,14 +120,14 @@ const ParkingReservation = () => {
   const percentage = (timer / 900) * 100;
 
   const handlePurchaseTicket = () => {
-    fetch(`/api/parking/${selectedSpot.id}/purchase`, {
+    fetch(`booking/${selectedSlot.id}/purchase`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ duration }),
     })
     .then(response => {
       if (!response.ok) {
-        throw new Error('Errore durante l\'acquisto del biglietto');
+        throw new Error("Errore durante l'acquisto del biglietto");
       }
       alert(`Prenotazione effettuata per ${duration} minuti!`);
     })
@@ -94,27 +137,34 @@ const ParkingReservation = () => {
   };
 
   useEffect(() => {
-    if (isLoaded && availableSpots.length > 0) {
-      const map = new window.google.maps.Map(document.getElementById('map'), {
-        center: { lat: 38.1350, lng: 14.7290 },
-        zoom: 15,
-        mapId: 'eef3774626da8ae7', 
-      });
-  
-      availableSpots.forEach((spot) => {
-        const marker = new window.google.maps.marker.AdvancedMarkerElement({
-          position: spot.coordinates,
-          map: map,
-          title: spot.name,
+    if (isLoaded && availableSlots.length > 0) {
+      const initMap = async () => {
+        const { Map } = await window.google.maps.importLibrary("maps");
+        const map = new Map(document.getElementById('map'), {
+          center: { lat: 38.1615485, lng: 14.745763 },
+          zoom: 15,
+          mapId: ID_MAPS,
         });
-  
-        marker.addListener('click', () => {
-          handleSelectSpot(spot);
-        });
-      });
-    }
-  }, [isLoaded, availableSpots]);
 
+        availableSlots.forEach((Slot) => {
+          const marker = new window.google.maps.marker.AdvancedMarkerElement({
+            position: Slot.coordinates,
+            map: map,
+            title: Slot.name,
+          });
+
+          marker.addListener('click', () => {
+            handleSelectSlot(Slot);
+          });
+        });
+      };
+
+      initMap();
+    }
+
+  }, [isLoaded, availableSlots, ID_MAPS]);
+
+  if (loadError) return <div>Error loading maps: {loadError.message}</div>;
   if (!isLoaded) return <div>Loading...</div>;
 
   return (
@@ -125,23 +175,24 @@ const ParkingReservation = () => {
       <div id="map" style={{ width: '100%', height: '300px' }}></div>
 
       <ul className="parking-list">
-        {availableSpots.map((spot) => (
-          <li key={spot.id} className="parking-item" onClick={() => handleSelectSpot(spot)}>
-            <h3>{spot.name}</h3>
-            <p>{spot.location}</p>
+        {availableSlots.map((Slot) => (
+          <li key={Slot.id} className="parking-item" onClick={() => handleSelectSlot(Slot)}>
+            <h3>{Slot.name}</h3>
+            <p>{Slot.location}</p>
+            <p>{Slot.address}</p>
           </li>
         ))}
       </ul>
 
-      {selectedSpot && (
+      {selectedSlot && (
         <div className="reservation-content">
-          <h3>Hai selezionato: {selectedSpot.name}</h3>
+          <h3>Hai selezionato: {selectedSlot.name}</h3>
           <div className="timer-container">
             <h4>Tempo rimasto per arrivare:</h4>
             <div style={{ width: '100px', height: '100px' }}>
               <CircularProgressbar 
                 value={percentage} 
-                text={`${Math.floor(timer / 60)}:${(timer % 60).toString().padStart(2, '0')}`}
+                text={`${Math.floor(timer / 60)}:${('0' + (timer % 60)).slice(-2)}`}
                 styles={buildStyles({
                   pathColor: '#6a0dad',
                   textColor: 'black', 

@@ -1,6 +1,3 @@
-
-
-
 :root {
   --primary-color: #ffcc00; 
   --secondary-color: #6a0dad; 
@@ -13,6 +10,8 @@
 html, body {
   height: 100%;
   margin: 0; 
+  display: flex;
+  flex-direction: column;
   
 }
 
@@ -20,17 +19,22 @@ body {
  
   background-image: url('https://images.unsplash.com/photo-1532154066703-3973764c81fe?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
   background-position: center;
+  background-repeat:no-repeat ;
   display: flex;
   font-family: 'Ubuntu', sans-serif;
-  display: flex;
+  flex: 1;
   flex-direction: column;
   height: 100vh;
+  background-size: cover; 
   
 }
-
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
 .container {
   flex: 1;
-  padding: 20px; 
 }
 
 h1, h2 {
@@ -148,6 +152,8 @@ footer {
   padding: 20px 0; 
   background-color: #343a40; 
   color: white;
+  margin-top: auto;
+  
 }
 
 .footer-link {
@@ -225,4 +231,17 @@ img {
   width: 100%;
     height: 400px;
     overflow: hidden;
+}
+.table-transparent {
+  background-color: rgba(255, 255, 255, 0.123);
+  border: rgb(104, 104, 104); 
+}
+
+.table-transparent th {
+  background-color: transparent; 
+  color: #000; 
+}
+
+.table-transparent td {
+  background-color: transparent; 
 }

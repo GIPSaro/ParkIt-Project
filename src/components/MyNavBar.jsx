@@ -41,6 +41,9 @@ const MyNavBar = () => {
                                 </li>
                             
                                 <li className="nav-item">
+                                    <Link to="/annualCard" className="nav-link">La tua Tessera</Link>
+                                </li>
+                                <li className="nav-item">
                                     <Link to="/reservation" className="nav-link">Trova il tuo parcheggio!</Link>
                                 </li>
                                 <li className="nav-item">

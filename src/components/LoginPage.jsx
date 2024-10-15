@@ -41,7 +41,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="container mt-5">
+    <div className="container">
       <div className="form-container text-white">
         <h2>Login</h2>
         <form onSubmit={handleSubmit}>
