@@ -20,10 +20,13 @@ const LoginPage = () => {
 
       if (resp.ok) {
         const result = await resp.json();
-        console.log(result.accessToken);
-        localStorage.setItem("token", result.accessToken);
-        dispatch(loginAction(email, password));
-        navigate("/reservation");
+        console.log(result);
+        if (result.accessToken) {
+          dispatch(loginAction({ email }, result.accessToken));
+          navigate("/reservation");
+        } else {
+          alert("Token non disponibile.");
+        }
       } else {
         const errorResponse = await resp.json();
         alert("Utente non registrato!");

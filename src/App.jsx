@@ -9,12 +9,12 @@ import RegisterPage from './components/RegisterPage';
 import MyFooter from './components/MyFooter';
 import MyNavbar from './components/MyNavBar';
 import ParkingReservation from './components/ParkingReservation';
-// import PaymentPage from './components/PaymentPage';
+import PaymentPage from './components/PaymentPage';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import '@fontsource/ubuntu';
 // import ParkingRoute from './components/ParkingRoute';
 import UserProfilePage from './components/UserProfilePage';
-import EditProfilePage from './components/EditProfilePage';
+// import EditProfilePage from './components/EditProfilePage';
 import AnnualCard from './components/AnnualCard';
 
 
@@ -30,9 +30,9 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
-            <Route path="/annualCard" element={<AnnualCard />} />
-            <Route path="/editProfile" element={<EditProfilePage />} />
-            {/* <Route path="/payment" element={<PaymentPage />} /> */}
+            <Route path="annualCard" element={<AnnualCard />} />
+            {/* <Route path="/editProfile" element={<EditProfilePage />} /> */}
+            <Route path="/payment" element={<PaymentPage />} />
             {/* <Route path="/parking-route/:id" element={<ParkingRoute />} /> */}
           </Routes>
         </div> 

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { useLoadScript } from '@react-google-maps/api';
+import { useSelector } from 'react-redux';
 
 const libraries = ["marker", "places"];
 
@@ -14,6 +15,7 @@ const ParkingReservation = () => {
   const [isTimerActive, setIsTimerActive] = useState(false);
   const API_MAPS = import.meta.env.VITE_API_MAPS;
   const ID_MAPS = import.meta.env.VITE_ID_MAPS;
+  const token = useSelector((state) => state.auth.token);
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: API_MAPS,
@@ -82,7 +84,13 @@ const ParkingReservation = () => {
       setIsTimerActive(true);
       setTimer(900);
 
-      fetch(`parkingSlot/${selectedSlot.id}/occupy`, { method: 'POST' })
+      fetch(`parkingSlot/${selectedSlot.id}/occupy`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, 
+        },
+      })
         .then(response => {
           if (!response.ok) {
             throw new Error('Errore durante la prenotazione del parcheggio');

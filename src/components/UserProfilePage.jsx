@@ -18,7 +18,7 @@ const UserProfilePage = () => {
     authorities: [],
   });
 
-  const [tickets, setTickets] = useState([]);
+  // const [tickets, setTickets] = useState([]);
   const [showTickets, setShowTickets] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -28,68 +28,64 @@ const UserProfilePage = () => {
   const token = store.getState().auth.token;
 
   // Funzione per recuperare i ticket dell'utente
-  const fetchUserTickets = async () => {
-    try {
-      const resp = await fetch(url + "users/me/tickets", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  // const fetchUserTickets = async () => {
+  //   try {
+  //     const resp = await fetch(url + "users/me/tickets", {
+  //       method: "GET",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
 
-      if (resp.ok) {
-        const result = await resp.json();
-        setTickets(result);
-      } else {
-        const errorText = await resp.text();
-        console.error("Errore nel recupero dei ticket:", errorText);
-      }
-    } catch (error) {
-      console.error("Errore nella richiesta dei ticket:", error);
-    }
-  };
+  //     if (resp.ok) {
+  //       const result = await resp.json();
+  //       setTickets(result);
+  //     } else {
+  //       const errorText = await resp.text();
+  //       console.error("Errore nel recupero dei ticket:", errorText);
+  //     }
+  //   } catch (error) {
+  //     console.error("Errore nella richiesta dei ticket:", error);
+  //   }
+  // };
 
   useEffect(() => {
+    // Funzione per recuperare i dati dell'utente
+    const fetchUser = async () => {
+      try {
+          const response = await fetch(url + "users/me", {
+              method: "GET",
+              headers: {
+                  Authorization: `Bearer ${token}`,
+              },
+          });
+  
+          if (!response.ok) {
+              throw new Error("Errore nella richiesta");
+          }
+  
+          const userData = await response.json();
+  
+          setUser(userData); 
+          setEditData(userData);
+          console.log(userData)
+  
+      } catch (error) {
+          console.error("Errore nella richiesta:", error);
+      }
+  };
+  
     fetchUser();
-    fetchUserTickets();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+}, [token]); 
+
+
 
   // toggle della visibilità della tabella
-
+  
   const toggleTicketsTable = () => {
     setShowTickets((prev) => !prev);
   };
-  const fetchUser = async () => {
-    try {
-      const resp = await fetch(url + "users/me", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
 
-      if (resp.ok) {
-        const result = await resp.json();
-        if (result.id) {
-          setUser(result);
-        } else {
-          console.error("Nessun utente trovato");
-        }
-      } else {
-        const errorText = await resp.text();
-        console.error("Errore nel recupero dei dati:", errorText);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUser();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    fetchUserTickets();
-  }, []);
 
   const handleFileChange = async (event) => {
     const file = event.target.files[0];
@@ -100,7 +96,6 @@ const UserProfilePage = () => {
       const response = await fetch(url + "users/me/avatar", {
         method: "POST",
         body: formData,
-        credentials: "include",
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -123,12 +118,12 @@ const UserProfilePage = () => {
           avatar: result.avatar || prevUser.avatar,
         }));
       } else {
-        console.error("No content returned from server");
+        console.error("Nessun contenuto ricevuto dal server");
       }
 
-      console.log("File uploaded successfully");
+      console.log("File caricato con successo");
     } catch (error) {
-      console.error("Error uploading avatar:", error);
+      console.error("Errore nel caricamento dell'avatar:", error);
     }
   };
 
@@ -202,12 +197,12 @@ const UserProfilePage = () => {
   };
 
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <Container className="user-profile-page mt-5 container flex-grow-1">
-        <Card className="p-4 text-center">
-          <Card.Img
+    <div className="d-flex flex-column min-vh-100 text-white">
+      <Container className="user-profile-page mt-5 container flex-grow-1 text-white">
+        <Card className="p-4 text-center text-white">
+        <Card.Img
             variant="top"
-            src={user.avatar}
+            src={user.avatar || "https://static.vecteezy.com/ti/vettori-gratis/p1/9292244-default-avatar-icon-vector-of-social-media-user-vettoriale.jpg"}
             alt="profile"
             className="rounded-circle"
             style={{
@@ -239,7 +234,7 @@ const UserProfilePage = () => {
             </Button>
           </Card.Body>
         </Card>
-        {/* mostrare/nascondere la tabella */}
+        {/* Intestazione come link per mostrare/nascondere la tabella */}
         <h4
           className="mt-4"
           onClick={toggleTicketsTable}
@@ -258,7 +253,7 @@ const UserProfilePage = () => {
                 <th>Prezzo</th>
               </tr>
             </thead>
-            <tbody>
+            {/* <tbody>
               {tickets.length > 0 ? (
                 tickets.map((ticket) => (
                   <tr key={ticket.id}>
@@ -274,13 +269,13 @@ const UserProfilePage = () => {
                   </td>
                 </tr>
               )}
-            </tbody>
+            </tbody> */}
           </Table>
         )}
       </Container>
 
       {/* Modale per la modifica del profilo */}
-      <Modal show={showModal} onHide={handleCloseModal}>
+      <Modal className="custom-modal" show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Modifica Profilo</Modal.Title>
         </Modal.Header>
@@ -344,9 +339,7 @@ const UserProfilePage = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
-            Chiudi
-          </Button>
+
           <Button variant="primary" onClick={handleSaveChanges}>
             Salva Modifiche
           </Button>

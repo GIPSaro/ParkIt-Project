@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { registerAction } from "../Redux/actions/registerActions";
-
+import { registerAndPurchaseAction } from "../Redux/actions/registerAdnPurchaseAction";
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
     username: "",
@@ -17,32 +16,9 @@ const RegisterPage = () => {
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const url = import.meta.env.VITE_URL;
-
-  const registerFetch = async () => {
-    try {
-      console.log("Payload di registrazione:", formData); 
-
-      const resp = await fetch(url + "auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
   
-      if (resp.ok) {
-        const result = await resp.json();
-        console.log(result);
-        return true;
-      } else {
-        const errorText = await resp.text();
-        console.error("Errore nella registrazione:", errorText);
-        return false;
-      }
-    } catch (error) {
-      console.error("Errore nella richiesta:", error);
-      return false;
-    }
-  };
+
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -62,18 +38,16 @@ const RegisterPage = () => {
 
   console.log("Payload di registrazione:", formData);
 
-    const registrationSuccesful = await registerFetch();
-
-    if (registrationSuccesful) {
-      dispatch(registerAction(formData));
-
-      if (formData.annualCard) {
-        window.location.href = "/payment";
-      } else {
-        navigate("/login");
-      }
+  const registrationSuccesful = await dispatch(registerAndPurchaseAction(formData)); 
+  if (registrationSuccesful) {
+    if (formData.annualCard) {
+      window.location.href = "/payment";
+    } else {
+      navigate("/login");
     }
-  };
+  }
+};
+
 
   return (
     <div className="container mt-5">
@@ -101,7 +75,7 @@ const RegisterPage = () => {
               />
             </div>
           ))}
-          <div className="form-check mb-3">
+           <div className="form-check mb-3">
             <input
               className="form-check-input"
               type="checkbox"
@@ -110,8 +84,20 @@ const RegisterPage = () => {
               onChange={handleChange}
             />
             <label className="form-check-label text-white">
-              Acquista Tessera Annuale (€10 con 10 ore di parcheggio in
-              omaggio!)
+              Acquista Tessera Annuale (€10 con 10 ore di parcheggio in omaggio!)
+            </label>
+          </div>
+
+          <div className="form-check mb-3">
+            <input
+              className="form-check-input"
+              type="checkbox"
+              name="subscribeNewsletter"
+              checked={formData.subscribeNewsletter}
+              onChange={handleChange}
+            />
+            <label className="form-check-label text-white">
+              Iscriviti alla newsletter per ricevere offerte e aggiornamenti!
             </label>
           </div>
           {formData.annualCard && (

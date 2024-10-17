@@ -1,10 +1,10 @@
 :root {
   --primary-color: #ffcc00; 
   --secondary-color: #6a0dad; 
-  --background-color: #212121;
+  --background-color: #9c9999;
   --light-background-color: #f8f9fa; 
   --text-color-home: #ffffff; 
-  --text-color-other: #343a40; 
+  --text-color-other: #000000; 
 }
 
 html, body {
@@ -16,8 +16,8 @@ html, body {
 }
 
 body {
- 
-  background-image: url('https://images.unsplash.com/photo-1532154066703-3973764c81fe?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D');
+ background-color:  var( --text-color-other) ;
+  /* background-image: url('https://images.unsplash.com/photo-1532154066703-3973764c81fe?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'); */
   background-position: center;
   background-repeat:no-repeat ;
   display: flex;
@@ -44,7 +44,7 @@ h1, h2 {
 }
 
 .btn-primary {
-  background-color: var(--primary-color);
+  background-color: var( --text-color-other);
   border: none;
   padding: 10px 15px;
   color: #fff; 
@@ -58,7 +58,7 @@ h1, h2 {
   background-color: var(--secondary-color);
 }
 .navbar {
-  background-color: var(--light-background-color);
+  background-color: var(--text-color-other);
 }
 
 .nav-brand, .nav-link {
@@ -70,7 +70,7 @@ h1, h2 {
 }
 
 .card {
-  background-color: transparent;
+  background-color: var(--primary-color);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -124,7 +124,7 @@ h1, h2 {
   justify-content: space-between;
   align-items: center;
   padding: 15px 20px;
-  background-color: var(--light-background-color);
+  background-color: var(--text-color-other)!important;
 }
 
 .nav-brand {
@@ -139,7 +139,7 @@ h1, h2 {
 
 .nav-link {
   margin: 0 15px;
-  color: var(--text-color-other);
+  color: var(--background-color)!important;
   text-decoration: none;
 }
 
@@ -150,7 +150,7 @@ h1, h2 {
 footer {
   text-align: center; 
   padding: 20px 0; 
-  background-color: #343a40; 
+  background-color:var(--text-color-other); 
   color: white;
   margin-top: auto;
   
@@ -244,4 +244,17 @@ img {
 
 .table-transparent td {
   background-color: transparent; 
+}
+.custom-modal .modal-content {
+  background-color: rgb(42, 42, 42);
+  color: white;
+}
+
+.custom-modal-header, .custom-modal-footer {
+  background-color: black;
+  color: white;
+}
+
+.custom-modal-header .btn-close {
+  filter: invert(1); 
 }
