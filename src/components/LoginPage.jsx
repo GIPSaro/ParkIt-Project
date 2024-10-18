@@ -17,13 +17,20 @@ const LoginPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email, password: password }),
       });
-
+  
       if (resp.ok) {
         const result = await resp.json();
         console.log(result);
         if (result.accessToken) {
           dispatch(loginAction({ email }, result.accessToken));
-          navigate("/reservation");
+          
+          
+          if (result.role === "ADMIN") {
+            navigate("/admin");
+          } else {
+            navigate("/reservation");
+            console.log(result.role) // Naviga alla pagina di riservazione per gli utenti normali
+          }
         } else {
           alert("Token non disponibile.");
         }
@@ -37,6 +44,7 @@ const LoginPage = () => {
       alert("Si è verificato un errore durante il login.");
     }
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();

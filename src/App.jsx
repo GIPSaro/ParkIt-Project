@@ -14,8 +14,8 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import '@fontsource/ubuntu';
 // import ParkingRoute from './components/ParkingRoute';
 import UserProfilePage from './components/UserProfilePage';
-// import EditProfilePage from './components/EditProfilePage';
 import AnnualCard from './components/AnnualCard';
+import AdminPage from './components/AdminPage';
 
 
 function App() {
@@ -31,8 +31,8 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
             <Route path="annualCard" element={<AnnualCard />} />
-            {/* <Route path="/editProfile" element={<EditProfilePage />} /> */}
             <Route path="/payment" element={<PaymentPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             {/* <Route path="/parking-route/:id" element={<ParkingRoute />} /> */}
           </Routes>
         </div> 

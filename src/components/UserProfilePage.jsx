@@ -18,7 +18,7 @@ const UserProfilePage = () => {
     authorities: [],
   });
 
-  // const [tickets, setTickets] = useState([]);
+
   const [showTickets, setShowTickets] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -27,30 +27,7 @@ const UserProfilePage = () => {
   const url = import.meta.env.VITE_URL;
   const token = store.getState().auth.token;
 
-  // Funzione per recuperare i ticket dell'utente
-  // const fetchUserTickets = async () => {
-  //   try {
-  //     const resp = await fetch(url + "users/me/tickets", {
-  //       method: "GET",
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     if (resp.ok) {
-  //       const result = await resp.json();
-  //       setTickets(result);
-  //     } else {
-  //       const errorText = await resp.text();
-  //       console.error("Errore nel recupero dei ticket:", errorText);
-  //     }
-  //   } catch (error) {
-  //     console.error("Errore nella richiesta dei ticket:", error);
-  //   }
-  // };
-
   useEffect(() => {
-    // Funzione per recuperare i dati dell'utente
     const fetchUser = async () => {
       try {
           const response = await fetch(url + "users/me", {
@@ -76,7 +53,7 @@ const UserProfilePage = () => {
   };
   
     fetchUser();
-}, [token]); 
+}, [token, url]); 
 
 
 
@@ -202,7 +179,7 @@ const UserProfilePage = () => {
         <Card className="p-4 text-center text-white">
         <Card.Img
             variant="top"
-            src={user.avatar || "https://static.vecteezy.com/ti/vettori-gratis/p1/9292244-default-avatar-icon-vector-of-social-media-user-vettoriale.jpg"}
+            src={user.avatar}
             alt="profile"
             className="rounded-circle"
             style={{
@@ -220,17 +197,17 @@ const UserProfilePage = () => {
               {user.name} {user.surname}
             </Card.Text>
 
-            {/* <Card.Text>
+            { <Card.Text>
               {user.hasAnnualCard
                 ? "Hai una tessera annuale"
                 : "Non hai una tessera annuale"}
-            </Card.Text> */}
+            </Card.Text> }
             <Button
               variant="primary"
               className="mt-3"
               onClick={handleShowModal}
             >
-              Modifica Profilo
+              Edit Profile
             </Button>
           </Card.Body>
         </Card>
@@ -240,7 +217,7 @@ const UserProfilePage = () => {
           onClick={toggleTicketsTable}
           style={{ cursor: "pointer" }}
         >
-          {showTickets ? "Nascondi" : "Cronologia Tickets"}
+          {showTickets ? "Hide" : "Tickets Chronology"}
         </h4>
 
         {/* Tabella della cronologia dei tickets */}
@@ -253,23 +230,6 @@ const UserProfilePage = () => {
                 <th>Prezzo</th>
               </tr>
             </thead>
-            {/* <tbody>
-              {tickets.length > 0 ? (
-                tickets.map((ticket) => (
-                  <tr key={ticket.id}>
-                    <td>{ticket.parkingSlot}</td>
-                    <td>{new Date(ticket.day).toLocaleDateString()}</td>
-                    <td>{ticket.price} €</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="text-center">
-                    Nessun ticket trovato
-                  </td>
-                </tr>
-              )}
-            </tbody> */}
           </Table>
         )}
       </Container>
@@ -277,7 +237,7 @@ const UserProfilePage = () => {
       {/* Modale per la modifica del profilo */}
       <Modal className="custom-modal" show={showModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Modifica Profilo</Modal.Title>
+          <Modal.Title>Edit Profile</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -341,10 +301,10 @@ const UserProfilePage = () => {
         <Modal.Footer>
 
           <Button variant="primary" onClick={handleSaveChanges}>
-            Salva Modifiche
+            Save Edit
           </Button>
           <Button variant="danger" onClick={() => setShowDeleteModal(true)}>
-            Elimina Profilo
+            Delete Account
           </Button>
         </Modal.Footer>
       </Modal>
@@ -352,18 +312,18 @@ const UserProfilePage = () => {
       {/* Modale per conferma eliminazione */}
       <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Conferma Eliminazione</Modal.Title>
+          <Modal.Title>Confirm Delete</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Sei sicuro di voler eliminare il tuo profilo? Questa azione è
-          irreversibile.
+        Are you sure you want to delete your profile? This action is
+        irreversible.
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-            Annulla
+            Cancel
           </Button>
           <Button variant="danger" onClick={handleDeleteUser}>
-            Elimina
+            Delete
           </Button>
         </Modal.Footer>
       </Modal>

@@ -55,18 +55,18 @@ const MyNavBar = () => {
               <>
                 <li className="nav-item">
                   <Link to="/profile" className="nav-link">
-                    Il tuo profilo
+                    Profile
                   </Link>
                 </li>
 
                 <li className="nav-item">
                   <Link to="/annualCard" className="nav-link">
-                    La tua Tessera
+                  Fidelity Card
                   </Link>
                 </li>
                 <li className="nav-item">
                   <Link to="/reservation" className="nav-link">
-                    Trova il tuo parcheggio!
+                    Find your Parking!
                   </Link>
                 </li>
                 <li className="nav-item">
