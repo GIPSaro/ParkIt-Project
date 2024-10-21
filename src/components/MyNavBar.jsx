@@ -1,12 +1,20 @@
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logoutAction } from "../Redux/actions/authActions";
+import { useEffect } from "react";
 
 const MyNavBar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+ 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
-  
+  const user = useSelector((state) => state.auth.user);
+  console.log(user)
+
+  useEffect(() => {
+    console.log("User Data Updated:", user);
+}, [user]);
 
   const handleLogout = (e) => {
     e.preventDefault();
@@ -33,11 +41,6 @@ const MyNavBar = () => {
         </button>
         <div className="collapse navbar-collapse" id="navbarNav">
           <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link to="/" className="nav-link">
-                Home
-              </Link>
-            </li>
             {!isLoggedIn ? (
               <>
                 <li className="nav-item">
@@ -51,6 +54,19 @@ const MyNavBar = () => {
                   </Link>
                 </li>
               </>
+            ) : user?.role === "ADMIN" ? (
+              <>
+                <li className="nav-item">
+                  <Link to="/admin" className="nav-link">
+                    Admin User Management
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link to="/" className="nav-link" onClick={handleLogout}>
+                    Logout
+                  </Link>
+                </li>
+              </>
             ) : (
               <>
                 <li className="nav-item">
@@ -61,7 +77,7 @@ const MyNavBar = () => {
 
                 <li className="nav-item">
                   <Link to="/annualCard" className="nav-link">
-                  Fidelity Card
+                    Fidelity Card
                   </Link>
                 </li>
                 <li className="nav-item">

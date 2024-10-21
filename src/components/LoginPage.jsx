@@ -22,14 +22,14 @@ const LoginPage = () => {
         const result = await resp.json();
         console.log(result);
         if (result.accessToken) {
-          dispatch(loginAction({ email }, result.accessToken));
+          dispatch(loginAction({ email, role: result.role }, result.accessToken, result.role));
           
           
           if (result.role === "ADMIN") {
             navigate("/admin");
           } else {
             navigate("/reservation");
-            console.log(result.role) // Naviga alla pagina di riservazione per gli utenti normali
+            console.log(result.role) 
           }
         } else {
           alert("Token non disponibile.");

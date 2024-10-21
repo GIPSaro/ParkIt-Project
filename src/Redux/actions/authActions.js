@@ -1,4 +1,3 @@
-
 export const LOGIN = "LOGIN";
 export const LOGOUT = "LOGOUT";
 export const SAVE_TOKEN = 'SAVE_TOKEN';
@@ -9,25 +8,37 @@ export const saveToken = (token) => {
         payload: token,
     };
 };
-export const loginAction = (userData, token) => {
-    console.log("User data being passed:", userData);
-  localStorage.setItem('token', token); 
-  localStorage.setItem('user', JSON.stringify(userData));
 
+export const loginAction = (userData, token, role) => {
+    return (dispatch) => {
+        const userWithRole = { ...userData, role };
+        
+     
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(userWithRole));
+        
 
-  return (dispatch) => {
-    dispatch({
-      type: LOGIN,
-      payload: userData,
-    });
-    dispatch(saveToken(token)); 
-  };
+        dispatch({
+            type: LOGIN,
+            payload: { user: userWithRole, token },
+        });
+        
+        
+        dispatch(saveToken(token)); 
+        
+        console.log("User data being passed:", userWithRole);
+        if (role === 'ADMIN') {
+            console.log('User is an admin');
+        } else {
+            console.log('User is not an admin');
+        }
+    };
 };
 
 export const logoutAction = () => {
-  localStorage.removeItem('token');
-      localStorage.removeItem('user');
-  return {
-    type: LOGOUT,
-  };
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    return {
+        type: LOGOUT,
+    };
 };

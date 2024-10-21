@@ -19,30 +19,45 @@ const AdminPage = () => {
             className: "text-white bg-danger m-4",
         });
     };
+      function formatDate(dateString) {
+    const [day, month, year] = dateString.split('/');
+    return `${year}-${month}-${day}`;
+}
 
-    useEffect(() => {
-        fetchUsers();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sortBy, hasAnnualCard, filterValue]);
 
-    const fetchUsers = async () => {
-        setLoading(true);
-        try {
-            const response = await fetch(
-                `${url}users/admin/users?sortBy=${sortBy}&hasAnnualCard=${hasAnnualCard}&filterField=${filterField}&filterValue=${filterValue}`
-            );
-            if (!response.ok) {
-                throw new Error("Network response was not ok");
-            }
-            const data = await response.json();
-            setUsers(data.content);
-        } catch (error) {
-            console.error("Error fetching users", error);
-            notifyError("Errore nel reperimento dei dati");
-        } finally {
-            setLoading(false);
+useEffect(() => {
+    fetchUsers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [sortBy, hasAnnualCard, filterField, filterValue]);
+
+const fetchUsers = async () => {
+    setLoading(true);
+    try {
+        let queryParams = `?sortBy=${sortBy}`;
+        if (hasAnnualCard !== "") {
+            queryParams += `&hasAnnualCard=${hasAnnualCard}`;
         }
-    };
+        if (filterField && filterValue) {
+            queryParams += `&${filterField}=${filterValue}`;
+        }
+
+        const response = await fetch(url + `users` + queryParams, {
+            headers: {
+                Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+        });
+        if (!response.ok) {
+            throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setUsers(data.content);
+    } catch (error) {
+        console.error("Error fetching users", error);
+        notifyError("Errore nel reperimento dei dati");
+    } finally {
+        setLoading(false);
+    }
+};
 
     const handleFilterChange = (e) => {
         setFilterValue(e.target.value);
@@ -111,7 +126,7 @@ const AdminPage = () => {
                             <th>Surname</th>
                             <th>Date of Birth</th>
                             <th>Date of Register</th>
-                            <th>License Place</th>
+                            <th>License Plate</th>
                             <th>Fidelity Card</th>
                         </tr>
                     </thead>
@@ -123,14 +138,14 @@ const AdminPage = () => {
                                 <td>{user.surname}</td>
                                 <td>{user.dateOfBirthday}</td>
                                 <td>{user.dateOfRegister}</td>
-                                <td>{user.licensePlace}</td>
+                                <td>{user.licensePlate}</td>
                                 <td>
                                     {user.annualCard ? (
                                         <a href={`/annualCard/${user.annualCard.id}`}>
                                             View Fidelity Card
                                         </a>
                                     ) : (
-                                        "No Annual Card"
+                                        "No Fidelity Card"
                                     )}
                                 </td>
                             </tr>
