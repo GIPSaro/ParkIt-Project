@@ -19,10 +19,10 @@ const AdminPage = () => {
             className: "text-white bg-danger m-4",
         });
     };
-      function formatDate(dateString) {
-    const [day, month, year] = dateString.split('/');
-    return `${year}-${month}-${day}`;
-}
+//       function formatDate(dateString) {
+//     const [day, month, year] = dateString.split('/');
+//     return `${year}-${month}-${day}`;
+// }
 
 
 useEffect(() => {
@@ -80,7 +80,7 @@ const fetchUsers = async () => {
         <Container className="mt-5">
             
             <h1>Admin User Management</h1>
-
+<div className="d-flex justify-content-center">
             <DropdownButton className="mb-2" id="dropdown-basic-button" title="Sort By">
                 <Dropdown.Item onClick={() => handleSortChange("username")}>Username</Dropdown.Item>
                 <Dropdown.Item onClick={() => handleSortChange("name")}>Name</Dropdown.Item>
@@ -100,7 +100,7 @@ const fetchUsers = async () => {
                 <Dropdown.Item eventKey="surname">Surname</Dropdown.Item>
                 <Dropdown.Item eventKey="dateOfRegister">Date of Registration</Dropdown.Item>
             </DropdownButton>
-
+            </div>
             {showFilterInput && (
                 <Form className="mb-3">
                     <Form.Group controlId="formBasicFilter">

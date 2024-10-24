@@ -34,6 +34,10 @@ const LoginPage = () => {
         } else {
           alert("Token non disponibile.");
         }
+        if (resp.status === 401) {
+          alert("Il tuo token è scaduto. Effettua nuovamente il login.");
+          navigate("/login"); // Reindirizza alla pagina di login
+      } 
       } else {
         const errorResponse = await resp.json();
         alert("Utente non registrato!");
@@ -48,6 +52,7 @@ const LoginPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
     loginFetch();
   };
 

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import myImage from '../assets/img/IMG_2143.jpeg';
+import myVideo from '../assets/img/Handwritten Love Poster in White Black Background (Twitter Post).mp4';
 
 
 const MyHome = () => {
@@ -8,10 +8,19 @@ const MyHome = () => {
       <h1 className="text-white mb-4">Benvenuto su ParkIt</h1>
       <h1 className="text-white m-4">Trova il tuo parcheggio!</h1>
        <div className="map-container" >
-       <img
-            src={myImage}
-            alt="Parcheggio"
-          />
+       <video
+          src={myVideo}
+          alt="Parcheggio"
+          controls 
+          width="100%" 
+          autoPlay
+          loop 
+          muted 
+          playsInline // Evita il play button su mobile
+          disablePictureInPicture // Evita il PIP sui browser che lo supportano
+          controlsList="nodownload nofullscreen noplaybackrate" // Disabilita i controlli del video
+          className="video-animation" // Classe CSS per ulteriori stili
+       />
        </div>
     <div className="container container-home">
       
