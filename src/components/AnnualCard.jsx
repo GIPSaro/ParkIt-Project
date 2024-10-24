@@ -35,7 +35,7 @@ const AnnualCard = () => {
       } catch (error) {
         console.error("Errore nella richiesta:", error);
       } finally {
-        setLoading(false); // Imposta loading a false dopo la richiesta
+        setLoading(false); 
       }
     };
   

@@ -30,7 +30,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/profile" element={<UserProfilePage />} />
-            <Route path="annualCard" element={<AnnualCard />} />
+            <Route path="/users/:userId/annualCard/:cardId" element={<AnnualCard />} />
+
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/admin" element={<AdminPage />} />
             {/* <Route path="/parking-route/:id" element={<ParkingRoute />} /> */}

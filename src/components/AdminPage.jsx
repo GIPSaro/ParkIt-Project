@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
-import { Container, Dropdown, DropdownButton, Form, Table } from "react-bootstrap";
+import { useEffect, useState, useCallback } from "react";
+import { useSelector } from 'react-redux';
+import { Container, Dropdown, DropdownButton, Form, Table, Button, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
-
+import { useNavigate } from "react-router-dom";
 
 const AdminPage = () => {
+    const user = useSelector((state) => state.auth.user);
     const [users, setUsers] = useState([]);
     const [sortBy, setSortBy] = useState("username");
     const [hasAnnualCard, setHasAnnualCard] = useState("");
@@ -11,54 +13,47 @@ const AdminPage = () => {
     const [filterValue, setFilterValue] = useState("");
     const [showFilterInput, setShowFilterInput] = useState(false);
     const [filterField, setFilterField] = useState("");
+    const [isAdmin, setIsAdmin] = useState(false);
+    const navigate = useNavigate();
+    const url = import.meta.env.VITE_URL;
 
-    const url = import.meta.env.VITE_URL; 
+    const fetchUsers = useCallback(async () => {
+        setLoading(true);
+        try {
+            let queryParams = `?page=0&size=10&sortBy=${sortBy}`;
+            if (hasAnnualCard !== "") {
+                queryParams += `&hasAnnualCard=${hasAnnualCard}`;
+            }
+            if (filterField && filterValue) {
+                queryParams += `&${filterField}=${filterValue}`;
+            }
 
-    const notifyError = (errorMsg) => {
-        toast.error(errorMsg, {
-            className: "text-white bg-danger m-4",
-        });
-    };
-//       function formatDate(dateString) {
-//     const [day, month, year] = dateString.split('/');
-//     return `${year}-${month}-${day}`;
-// }
-
-
-useEffect(() => {
-    fetchUsers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-}, [sortBy, hasAnnualCard, filterField, filterValue]);
-
-const fetchUsers = async () => {
-    setLoading(true);
-    try {
-        let queryParams = `?sortBy=${sortBy}`;
-        if (hasAnnualCard !== "") {
-            queryParams += `&hasAnnualCard=${hasAnnualCard}`;
+            const response = await fetch(`${url}users${queryParams}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`
+                },
+            });
+    
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            const data = await response.json();
+            setUsers(data.content);
+        } catch (error) {
+            console.error("Error fetching users", error);
+            toast.error("Errore nel reperimento dei dati");
+        } finally {
+            setLoading(false);
         }
-        if (filterField && filterValue) {
-            queryParams += `&${filterField}=${filterValue}`;
-        }
+    }, [url, sortBy, hasAnnualCard, filterField, filterValue]);
 
-        const response = await fetch(url + `users` + queryParams, {
-            headers: {
-                Authorization: "Bearer " + localStorage.getItem("token"),
-            },
-        });
-        if (!response.ok) {
-            throw new Error("Network response was not ok");
+    useEffect(() => {
+        if (user) {
+            setIsAdmin(user.role === 'ADMIN');
+            fetchUsers();
         }
-        const data = await response.json();
-        setUsers(data.content);
-    } catch (error) {
-        console.error("Error fetching users", error);
-        notifyError("Errore nel reperimento dei dati");
-    } finally {
-        setLoading(false);
-    }
-};
-
+    }, [user, fetchUsers]);
     const handleFilterChange = (e) => {
         setFilterValue(e.target.value);
     };
@@ -76,31 +71,86 @@ const fetchUsers = async () => {
         setSortBy(value);
     };
 
+    const viewFidelityCard = (annualCardId, userId) => {
+        navigate(`/users/${userId}/annualCard/${annualCardId}`);
+    };
+
+    const handleDeleteUser = async (userId) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            try {
+                const response = await fetch(`${url}users/${userId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem("token")}`
+                    },
+                });
+                if (!response.ok) throw new Error("Delete failed");
+                fetchUsers();
+                toast.success("User deleted successfully");
+            } catch (error) {
+                toast.error("Error deleting user", error);
+            }
+        }
+    };
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [showEditModal, setShowEditModal] = useState(false);
+
+    const handleEditUser = (user) => {
+        setSelectedUser(user);
+        setShowEditModal(true);
+    };
+
+    const handleUpdateUser = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(`${url}users/${selectedUser.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: "Bearer " + localStorage.getItem("token"),
+                },
+                body: JSON.stringify(selectedUser),
+            });
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            fetchUsers();
+            setShowEditModal(false);
+            toast.success("Utente aggiornato con successo!");
+        } catch (error) {
+            console.error("Error updating user", error);
+            toast.error("Errore nell'aggiornamento dell'utente");
+        }
+    };
+
     return (
         <Container className="mt-5">
-            
             <h1>Admin User Management</h1>
-<div className="d-flex justify-content-center">
-            <DropdownButton className="mb-2" id="dropdown-basic-button" title="Sort By">
-                <Dropdown.Item onClick={() => handleSortChange("username")}>Username</Dropdown.Item>
-                <Dropdown.Item onClick={() => handleSortChange("name")}>Name</Dropdown.Item>
-                <Dropdown.Item onClick={() => handleSortChange("surname")}>Surname</Dropdown.Item>
-                <Dropdown.Item onClick={() => handleSortChange("dateOfRegister")}>Date of Registration</Dropdown.Item>
-            </DropdownButton>
+            {isAdmin ? (
+                <div className="d-flex justify-content-center">
+                    <DropdownButton className="mb-2" id="dropdown-basic-button" title="Sort By">
+                        <Dropdown.Item onClick={() => handleSortChange("username")}>Username</Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleSortChange("name")}>Name</Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleSortChange("surname")}>Surname</Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleSortChange("dateOfRegister")}>Date of Registration</Dropdown.Item>
+                    </DropdownButton>
 
-            <DropdownButton className="mb-2" id="dropdown-basic-button" title="Fidelity Card">
-                <Dropdown.Item onClick={() => handleAnnualCardChange("")}>All</Dropdown.Item>
-                <Dropdown.Item onClick={() => handleAnnualCardChange("true")}>With Fidelity Card</Dropdown.Item>
-                <Dropdown.Item onClick={() => handleAnnualCardChange("false")}>Without Fidelity Card</Dropdown.Item>
-            </DropdownButton>
+                    <DropdownButton className="mb-2" id="dropdown-basic-button" title="Fidelity Card">
+                        <Dropdown.Item onClick={() => handleAnnualCardChange("")}>All</Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleAnnualCardChange("true")}>With Fidelity Card</Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleAnnualCardChange("false")}>Without Fidelity Card</Dropdown.Item>
+                    </DropdownButton>
 
-            <DropdownButton className="mb-2" id="dropdown-basic-button" title="Filters" onSelect={handleFilterFieldChange}>
-                <Dropdown.Item eventKey="username">Username</Dropdown.Item>
-                <Dropdown.Item eventKey="name">Name</Dropdown.Item>
-                <Dropdown.Item eventKey="surname">Surname</Dropdown.Item>
-                <Dropdown.Item eventKey="dateOfRegister">Date of Registration</Dropdown.Item>
-            </DropdownButton>
-            </div>
+                    <DropdownButton className="mb-2" id="dropdown-basic-button" title="Filters" onSelect={handleFilterFieldChange}>
+                        <Dropdown.Item eventKey="username">Username</Dropdown.Item>
+                        <Dropdown.Item eventKey="name">Name</Dropdown.Item>
+                        <Dropdown.Item eventKey="surname">Surname</Dropdown.Item>
+                        <Dropdown.Item eventKey="dateOfRegister">Date of Registration</Dropdown.Item>
+                    </DropdownButton>
+                </div>
+            ) : (
+                <p>You do not have permission to access this page.</p>
+            )}
             {showFilterInput && (
                 <Form className="mb-3">
                     <Form.Group controlId="formBasicFilter">
@@ -128,33 +178,81 @@ const fetchUsers = async () => {
                             <th>Date of Register</th>
                             <th>License Plate</th>
                             <th>Fidelity Card</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {users.map((user) => (
-                            <tr key={user.id}>
-                                <td>{user.username}</td>
-                                <td>{user.name}</td>
-                                <td>{user.surname}</td>
-                                <td>{user.dateOfBirthday}</td>
-                                <td>{user.dateOfRegister}</td>
-                                <td>{user.licensePlate}</td>
-                                <td>
-                                    {user.annualCard ? (
-                                        <a href={`/annualCard/${user.annualCard.id}`}>
-                                            View Fidelity Card
-                                        </a>
-                                    ) : (
-                                        "No Fidelity Card"
-                                    )}
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
+    {users.map((user) => (
+        <tr key={user.id}>
+            <td>{user.username}</td>
+            <td>{user.name}</td>
+            <td>{user.surname}</td>
+            <td>{user.dateOfBirthday}</td>
+            <td>{user.dateOfRegister}</td>
+            <td>{user.licensePlate}</td>
+            <td>
+                {user.annualCard ? (
+                    <button onClick={() => viewFidelityCard(user.annualCard.id, user.id)}>
+                        View Fidelity Card
+                    </button>
+                ) : (
+                    "No Fidelity Card"
+                )}
+            </td>
+            <td>
+                {isAdmin && (
+                    <>
+                        <Button variant="warning" onClick={() => handleEditUser(user)}>Edit</Button>
+                        <Button variant="danger" onClick={() => handleDeleteUser(user.id)}>Delete</Button>
+                    </>
+                )}
+            </td>
+        </tr>
+    ))}
+</tbody>
                 </Table>
             )}
+
+            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Modifica Utente</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleUpdateUser}>
+                        <Form.Group controlId="formUsername">
+                            <Form.Label>Username</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={selectedUser?.username || ""}
+                                onChange={(e) => setSelectedUser({ ...selectedUser, username: e.target.value })}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formName">
+                            <Form.Label>Name</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={selectedUser?.name || ""}
+                                onChange={(e) => setSelectedUser({ ...selectedUser, name: e.target.value })}
+                                required
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formSurname">
+                            <Form.Label>Surname</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={selectedUser?.surname || ""}
+                                onChange={(e) => setSelectedUser({ ...selectedUser, surname: e.target.value })}
+                                required
+                            />
+                        </Form.Group>
+                        <Button variant="primary" type="submit">
+                            Save Changes
+                        </Button>
+                    </Form>
+                </Modal.Body>
+            </Modal>
         </Container>
     );
 };
-
 export default AdminPage;
