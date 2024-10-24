@@ -29,10 +29,14 @@ const authReducer = (state = initialState, action) => {
             return {
                 ...state,
                 token: action.payload,
+                
             };
+           
         default:
             return state;
     }
+
+
 };
 
 export default authReducer;

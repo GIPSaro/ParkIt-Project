@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginAction } from "../Redux/actions/authActions";
+import { updateUserAction } from "../Redux/actions/userActions"; // Importa l'azione per aggiornare i dati dell'utente
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
@@ -17,27 +18,26 @@ const LoginPage = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: email, password: password }),
       });
-  
+
       if (resp.ok) {
         const result = await resp.json();
         console.log(result);
         if (result.accessToken) {
+          // Dispatcha l'azione di login
           dispatch(loginAction({ email, role: result.role }, result.accessToken, result.role));
           
-          
+          // Dispatcha l'azione per aggiornare i dati dell'utente
+          dispatch(updateUserAction({ email, role: result.role }));
+
           if (result.role === "ADMIN") {
             navigate("/admin");
           } else {
             navigate("/reservation");
-            console.log(result.role) 
+            console.log(result.role);
           }
         } else {
           alert("Token non disponibile.");
         }
-        if (resp.status === 401) {
-          alert("Il tuo token è scaduto. Effettua nuovamente il login.");
-          navigate("/login"); // Reindirizza alla pagina di login
-      } 
       } else {
         const errorResponse = await resp.json();
         alert("Utente non registrato!");
@@ -48,11 +48,9 @@ const LoginPage = () => {
       alert("Si è verificato un errore durante il login.");
     }
   };
-  
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     loginFetch();
   };
 

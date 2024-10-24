@@ -4,8 +4,13 @@ import 'react-circular-progressbar/dist/styles.css';
 import { useLoadScript } from '@react-google-maps/api';
 import { useSelector } from 'react-redux';
 
-const libraries = ["marker", "places"];
 
+const libraries = ["marker", "places"];
+const url = import.meta.env.VITE_URL; 
+ 
+    
+
+  
 const ParkingReservation = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -16,12 +21,36 @@ const ParkingReservation = () => {
   const API_MAPS = import.meta.env.VITE_API_MAPS;
   const ID_MAPS = import.meta.env.VITE_ID_MAPS;
   const token = useSelector((state) => state.auth.token);
-
+  const user = useSelector((state) => state.user.user);
+  console.log('User from Redux:', user);
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: API_MAPS,
     libraries,
-    
   });
+
+  useEffect(() => {
+    if (token && user?.email) {
+      fetch(`${url}users/me`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Errore durante il recupero dell\'ID utente');
+        }
+        return response.json();
+      })
+      .then(data => {
+      
+        console.log('User ID:', data.id);
+      })
+      .catch(error => {
+        console.error('Errore:', error);
+      });
+    }
+  }, [token, user?.email]);
 
   useEffect(() => {
     const fetchedSlots = [
@@ -52,7 +81,6 @@ const ParkingReservation = () => {
         location: "Capo d'Orlando",
         address: "Via XXVII Settembre, 102",
         coordinates: { lat: 38.1592435, lng: 14.7429055 },
-
       },
       {
         id: 5,
@@ -66,10 +94,8 @@ const ParkingReservation = () => {
         name: "Parcheggio F",
         location: "Capo d'Orlando",
         address: "Piazza Duca degli Abruzzi",
-        coordinates: { lat: 38.1624474, lng: 14.7466575 } ,
+        coordinates: { lat: 38.1624474, lng: 14.7466575 },
       }
-
-      
     ];
     setAvailableSlots(fetchedSlots);
   }, []);
@@ -78,31 +104,49 @@ const ParkingReservation = () => {
     setSelectedSlot(Slot);
   };
 
+ 
+
   const handleConfirmReservation = () => {
+    
+    const userId = user ? user.id : null; 
+  
+    if (!userId) {
+      alert('Errore: utente non autenticato!');
+      return;
+    }
+  
     const userConfirmed = window.confirm(`Confermi la prenotazione per ${selectedSlot.name}?`);
     if (userConfirmed) {
       setIsTimerActive(true);
       setTimer(900);
-
-      fetch(`parkingSlot/${selectedSlot.id}/occupy`, {
+  
+      const bookingData = {
+        userId: userId, // Utilizza l'ID dell'utente dal Redux store
+        parkingSlotId: selectedSlot.id,
+        startTime: new Date(), // ora corrente
+        endTime: new Date(new Date().getTime() + duration * 60000), // aggiungi la durata in millisecondi
+      };
+  
+      fetch(url + 'bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`, 
         },
+        body: JSON.stringify(bookingData),
       })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Errore durante la prenotazione del parcheggio');
-          }
-          alert(`Prenotazione confermata per ${selectedSlot.name}`);
-        })
-        .catch(error => {
-          console.error('Errore:', error);
-        });
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Errore durante la prenotazione del parcheggio');
+        }
+        alert(`Prenotazione confermata per ${selectedSlot.name}`);
+      })
+      .catch(error => {
+        console.error('Errore:', error);
+      });
     }
   };
-
+  
   const handleDurationChange = (e) => {
     const selectedDuration = e.target.value;
     setDuration(selectedDuration);
@@ -176,6 +220,7 @@ const ParkingReservation = () => {
   if (!isLoaded) return <div>Loading...</div>;
 
   return (
+    
     <div className="reservation-container">
       <div className="reservation-header">Prenotazione Parcheggio</div>
       

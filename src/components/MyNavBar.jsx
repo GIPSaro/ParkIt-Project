@@ -10,10 +10,10 @@ const MyNavBar = () => {
  
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const user = useSelector((state) => state.auth.user);
-  console.log(user)
+ 
 
   useEffect(() => {
-    console.log("User Data Updated:", user);
+   
 }, [user]);
 
   const handleLogout = (e) => {

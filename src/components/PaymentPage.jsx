@@ -2,7 +2,7 @@ import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 
 const url = import.meta.env.VITE_URL;
 const token = localStorage.getItem("token");
-const paypalId= import.meta.env.VITE_ID_PAYPAL;
+
 
 const PaymentPage = ({ onPaymentSuccess, amount }) => {
   const handlePurchase = async (userId, payerEmail) => {
