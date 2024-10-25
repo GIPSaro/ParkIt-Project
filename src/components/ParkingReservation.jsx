@@ -4,6 +4,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import { useLoadScript } from '@react-google-maps/api'; 
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserAction } from '../Redux/actions/userActions';
+import { useNavigate } from 'react-router-dom';
 
 const libraries = ["marker", "places"];
 const url = import.meta.env.VITE_URL; 
@@ -20,6 +21,7 @@ const ParkingReservation = () => {
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: API_MAPS,
@@ -58,7 +60,7 @@ const ParkingReservation = () => {
             if (response.ok) {
                 const data = await response.json();
 
-                // Mappa i dati per includere le coordinate in un formato più accessibile
+                
                 const formattedSlots = data.map(slot => ({
                     id: slot.id,
                     name: slot.name,
@@ -69,6 +71,7 @@ const ParkingReservation = () => {
                         lng: parseFloat(slot.longitude),
                     },
                 }));
+                calculateTravelTimes(formattedSlots);
 
                 setAvailableSlots(formattedSlots); 
             } else {
@@ -81,6 +84,37 @@ const ParkingReservation = () => {
 
     fetchParkingSlots();
 }, [token]);
+const calculateTravelTimes = (slots) => {
+  const service = new window.google.maps.DistanceMatrixService();
+
+  const origins = ['38.1332536,14.7270259'];
+  const destinations = slots.map(slot => `${slot.coordinates.lat},${slot.coordinates.lng}`);
+
+  const request = {
+    origins: origins,
+    destinations: destinations,
+    travelMode: window.google.maps.TravelMode.DRIVING,
+  };
+
+  service.getDistanceMatrix(request, (response, status) => {
+    if (status === window.google.maps.DistanceMatrixStatus.OK) {
+      const results = response.rows[0].elements.map(element => ({
+        duration: element.duration ? element.duration.text : "N/A",
+        distance: element.distance ? element.distance.text : "N/A",
+      }));
+
+    
+      setAvailableSlots((prevSlots) => 
+        prevSlots.map((slot, index) => ({
+          ...slot,
+          travelTime: results[index]?.duration || "N/A",
+        }))
+      );
+    } else {
+      console.error("Error with Distance Matrix:", status);
+    }
+  });
+};
 
   const handleSelectSlot = (slot) => {
     setSelectedSlot(slot);
@@ -119,7 +153,12 @@ const ParkingReservation = () => {
           throw new Error('Errore durante la prenotazione del parcheggio');
         }
         alert(`Prenotazione confermata per ${selectedSlot.name}`);
+        const originCoordinates = '38.1332536,14.7270259'; 
+        const parkingCoordinates = `${selectedSlot.coordinates.lat},${selectedSlot.coordinates.lng}`;
+        navigate(`/parking-route?origin=${originCoordinates}&destination=${parkingCoordinates}`);
       })
+        
+      
       .catch(error => {
         console.error('Errore:', error);
       });
@@ -161,11 +200,11 @@ const ParkingReservation = () => {
             });
 
             availableSlots.forEach((slot) => {
-                // Verifico che le coordinate siano disponibili
+               
                 if (slot.coordinates) {
                     const { lat, lng } = slot.coordinates;
 
-                    // Creo il marker
+                 
                     const marker = new window.google.maps.marker.AdvancedMarkerElement({
                         position: { lat, lng },
                         map: map,
@@ -202,6 +241,7 @@ const ParkingReservation = () => {
             <h3>{slot.name}</h3>
             <p>{slot.location}</p>
             <p>{slot.address}</p>
+            {slot.travelTime && <p>Tempo di percorrenza: {slot.travelTime}</p>}
           </li>
         ))}
       </ul>
@@ -221,6 +261,7 @@ const ParkingReservation = () => {
                   trailColor: '#d6d6d6', 
                 })}
               />
+              
             </div>
           </div>
           

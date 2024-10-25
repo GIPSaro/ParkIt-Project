@@ -140,7 +140,7 @@ footer {
   margin-bottom: 20px;
 }
 
-.map-container {
+.map-containers {
   margin-bottom: 20px;
 }
 
@@ -259,4 +259,34 @@ img {
 }
 .no-underline {
   text-decoration: none !important;
+}
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  margin: auto;
+}
+
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.5);
+}
+.parking-route-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+}
+
+.map-container {
+  width: 300px; /* Dimensione più piccola per la mappa */
+  height: 200px;
+  margin-top: 20px;
+}
+
+.timer-container {
+  width: 100px;
+  height: 100px;
+  margin: 20px 0;
 }

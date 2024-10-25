@@ -1,6 +1,5 @@
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
-
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
@@ -13,12 +12,11 @@ import ParkingReservation from "./components/ParkingReservation";
 import PaymentPage from "./components/PaymentPage";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "@fontsource/ubuntu";
-// import ParkingRoute from './components/ParkingRoute';
+import ParkingRoute from './components/ParkingRoute';
 import UserProfilePage from "./components/UserProfilePage";
 import AnnualCard from "./components/AnnualCard";
 import AdminPage from "./components/AdminPage";
 import AdminAnnualCard from "./components/AdminAnnualCard";
-
 
 function App() {
   return (
@@ -34,11 +32,14 @@ function App() {
             <Route path="/profile" element={<UserProfilePage />} />
             <Route path="annualCard" element={<AnnualCard />} />
 
-            <Route path="/annualCards/:annualCardId" element={<AdminAnnualCard />} />
+            <Route
+              path="/annualCards/:annualCardId"
+              element={<AdminAnnualCard />}
+            />
 
             <Route path="/payment" element={<PaymentPage />} />
             <Route path="/admin" element={<AdminPage />} />
-            {/* <Route path="/parking-route/:id" element={<ParkingRoute />} /> */}
+            <Route path="/parking-route" element={<ParkingRoute />} />
           </Routes>
         </div>
         <MyFooter />

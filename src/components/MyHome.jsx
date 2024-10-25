@@ -7,7 +7,7 @@ const MyHome = () => {
     <div className="container mt-3">
       <h1 className="text-white mb-4">Welcome To Parkit!</h1>
       <h1 className="text-white m-4">Find your Parking Space!</h1>
-       <div className="map-container" >
+       <div className="map-containers" >
        <video
           src={myVideo}
           alt="Parcheggio"
