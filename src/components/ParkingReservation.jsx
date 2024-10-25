@@ -5,13 +5,9 @@ import { useLoadScript } from '@react-google-maps/api';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateUserAction } from '../Redux/actions/userActions';
 
-
 const libraries = ["marker", "places"];
 const url = import.meta.env.VITE_URL; 
- 
-    
 
-  
 const ParkingReservation = () => {
   const [availableSlots, setAvailableSlots] = useState([]);
   const [selectedSlot, setSelectedSlot] = useState(null);
@@ -24,7 +20,7 @@ const ParkingReservation = () => {
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
- 
+
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: API_MAPS,
     libraries,
@@ -48,129 +44,69 @@ const ParkingReservation = () => {
       });
     }
   }, [token, user?.email]);
-  
 
   useEffect(() => {
-    const checkAndCreateParkingSlots = async () => {
-      try {
-        const response = await fetch(`${url}parkingslots`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-          },
-        });
-  
-        if (response.ok) {
-          const data = await response.json();
-          
-          if (data.length > 0) {
-            setAvailableSlots(data);
-            return;
-          }
+    const fetchParkingSlots = async () => {
+        try {
+            const response = await fetch(`${url}parkingslots`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Mappa i dati per includere le coordinate in un formato più accessibile
+                const formattedSlots = data.map(slot => ({
+                    id: slot.id,
+                    name: slot.name,
+                    location: slot.location,
+                    address: slot.address,
+                    coordinates: {
+                        lat: parseFloat(slot.latitude),  
+                        lng: parseFloat(slot.longitude),
+                    },
+                }));
+
+                setAvailableSlots(formattedSlots); 
+            } else {
+                console.error('Errore nel recupero dei parcheggi:', response.status);
+            }
+        } catch (error) {
+            console.error('Errore durante il caricamento dei parcheggi:', error);
         }
-  
-    const fetchedSlots = [
-      {
-        id: 1,
-        name: "Parcheggio A",
-        location: "Capo d'Orlando",
-        address: "Via Roma, 12",
-        coordinates: { lat: 38.159729, lng: 14.7434719 },
-      },
-      {
-        id: 2,
-        name: "Parcheggio B",
-        location: "Capo d'Orlando",
-        address: "Via Nino Bixio, 20",
-        coordinates: { lat: 38.1561235, lng: 14.7391766 },
-      },
-      {
-        id: 3,
-        name: "Parcheggio C",
-        location: "Capo d'Orlando",
-        address: "Via Del Piave",
-        coordinates: { lat: 38.1589455, lng: 14.7435224 },
-      },
-      {
-        id: 4,
-        name: "Parcheggio D",
-        location: "Capo d'Orlando",
-        address: "Via XXVII Settembre, 102",
-        coordinates: { lat: 38.1592435, lng: 14.7429055 },
-      },
-      {
-        id: 5,
-        name: "Parcheggio E",
-        location: "Capo d'Orlando",
-        address: "Via Cristoforo Colombo, 45",
-        coordinates: { lat: 38.1468, lng: 14.7559 },
-      },
-      {
-        id: 6,
-        name: "Parcheggio F",
-        location: "Capo d'Orlando",
-        address: "Piazza Duca degli Abruzzi",
-        coordinates: { lat: 38.1624474, lng: 14.7466575 },
-      }
-    ];
+    };
 
-    await Promise.all(fetchedSlots.map(async (slot) => {
-      const response = await fetch(`${url}parkingslots`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(slot),
-      });
-
-      if (!response.ok) {
-        
-        throw new Error('Errore durante il salvataggio del parcheggio');
-      }
-    }));
-
-   
-    setAvailableSlots(fetchedSlots);
-
-  } catch (error) {
-    console.error('Errore durante il caricamento dei parcheggi:', error);
-  }
-};
-
-checkAndCreateParkingSlots();
+    fetchParkingSlots();
 }, [token]);
-  
 
-  const handleSelectSlot = (Slot) => {
-    setSelectedSlot(Slot);
+  const handleSelectSlot = (slot) => {
+    setSelectedSlot(slot);
   };
-  
-
- 
 
   const handleConfirmReservation = () => {
-    
     const userId = user ? user.id : null; 
-  
+
     if (!userId) {
       alert('Errore: utente non autenticato!');
       return;
     }
-  
+
     const userConfirmed = window.confirm(`Confermi la prenotazione per ${selectedSlot.name}?`);
     if (userConfirmed) {
       setIsTimerActive(true);
       setTimer(900);
-  
+
       const bookingData = {
         userId: userId,
         parkingSlotId: selectedSlot.id,
         startTime: new Date(),
         endTime: new Date(new Date().getTime() + duration * 60000), 
       };
-  
-      fetch(url + 'bookings', {
+
+      fetch(`${url}bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -189,7 +125,7 @@ checkAndCreateParkingSlots();
       });
     }
   };
-  
+
   const handleDurationChange = (e) => {
     const selectedDuration = e.target.value;
     setDuration(selectedDuration);
@@ -214,56 +150,46 @@ checkAndCreateParkingSlots();
 
   const percentage = (timer / 900) * 100;
 
-  const handlePurchaseTicket = () => {
-    fetch(`booking/${selectedSlot.id}/purchase`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ duration }),
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("Errore durante l'acquisto del biglietto");
-      }
-      alert(`Prenotazione effettuata per ${duration} minuti!`);
-    })
-    .catch(error => {
-      console.error('Errore:', error);
-    });
-  };
-
   useEffect(() => {
     if (isLoaded && availableSlots.length > 0) {
-      const initMap = async () => {
-        const { Map } = await window.google.maps.importLibrary("maps");
-        const map = new Map(document.getElementById('map'), {
-          center: { lat: 38.1615485, lng: 14.745763 },
-          zoom: 15,
-          mapId: ID_MAPS,
-        });
+        const initMap = async () => {
+            const { Map } = await window.google.maps.importLibrary("maps");
+            const map = new Map(document.getElementById('map'), {
+                center: { lat: 38.1615485, lng: 14.745763 },
+                zoom: 15,
+                mapId: ID_MAPS,
+            });
 
-        availableSlots.forEach((Slot) => {
-          const marker = new window.google.maps.marker.AdvancedMarkerElement({
-            position: Slot.coordinates,
-            map: map,
-            title: Slot.name,
-          });
+            availableSlots.forEach((slot) => {
+                // Verifico che le coordinate siano disponibili
+                if (slot.coordinates) {
+                    const { lat, lng } = slot.coordinates;
 
-          marker.addListener('click', () => {
-            handleSelectSlot(Slot);
-          });
-        });
-      };
+                    // Creo il marker
+                    const marker = new window.google.maps.marker.AdvancedMarkerElement({
+                        position: { lat, lng },
+                        map: map,
+                        title: slot.name,
+                    });
 
-      initMap();
+                    marker.addListener('click', () => {
+                        handleSelectSlot(slot);
+                    });
+                } else {
+                    console.warn(`Coordinate non disponibili per il parcheggio: ${slot.name}`);
+                }
+            });
+        };
+
+        initMap();
     }
+}, [isLoaded, availableSlots, ID_MAPS]);
 
-  }, [isLoaded, availableSlots, ID_MAPS]);
 
   if (loadError) return <div>Error loading maps: {loadError.message}</div>;
   if (!isLoaded) return <div>Loading...</div>;
 
   return (
-    
     <div className="reservation-container">
       <div className="reservation-header">Prenotazione Parcheggio</div>
       
@@ -271,11 +197,11 @@ checkAndCreateParkingSlots();
       <div id="map" style={{ width: '100%', height: '300px' }}></div>
 
       <ul className="parking-list">
-        {availableSlots.map((Slot) => (
-          <li key={Slot.id} className="parking-item" onClick={() => handleSelectSlot(Slot)}>
-            <h3>{Slot.name}</h3>
-            <p>{Slot.location}</p>
-            <p>{Slot.address}</p>
+        {availableSlots.map((slot) => (
+          <li key={slot.id} className="parking-item" onClick={() => handleSelectSlot(slot)}>
+            <h3>{slot.name}</h3>
+            <p>{slot.location}</p>
+            <p>{slot.address}</p>
           </li>
         ))}
       </ul>
@@ -320,9 +246,6 @@ checkAndCreateParkingSlots();
           <h2 className='text-dark'>Prezzo Totale: € {calculateTotalPrice().toFixed(2)}</h2>
           <button className="btn btn-warning" onClick={handleConfirmReservation}>
             Conferma Prenotazione
-          </button>
-          <button className="btn btn-success" onClick={handlePurchaseTicket} disabled={!isTimerActive || timer === 0}>
-            Acquista Biglietto
           </button>
         </div>
       )}
