@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { buildStyles, CircularProgressbar } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-import { useLoadScript } from '@react-google-maps/api';
-import { useSelector } from 'react-redux';
+import { useLoadScript } from '@react-google-maps/api'; 
+import { useDispatch, useSelector } from 'react-redux';
+import { updateUserAction } from '../Redux/actions/userActions';
 
 
 const libraries = ["marker", "places"];
@@ -22,7 +23,8 @@ const ParkingReservation = () => {
   const ID_MAPS = import.meta.env.VITE_ID_MAPS;
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.user.user);
-  console.log('User from Redux:', user);
+  const dispatch = useDispatch();
+ 
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: API_MAPS,
     libraries,
@@ -36,23 +38,37 @@ const ParkingReservation = () => {
           'Authorization': `Bearer ${token}`,
         }
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Errore durante il recupero dell\'ID utente');
-        }
-        return response.json();
-      })
+      .then(response => response.json())
       .then(data => {
-      
-        console.log('User ID:', data.id);
+        console.log('Dati restituiti dall\'API:', data); 
+        dispatch(updateUserAction(data)); 
       })
       .catch(error => {
-        console.error('Errore:', error);
+        console.error('Errore durante la richiesta dell\'utente:', error);
       });
     }
   }, [token, user?.email]);
+  
 
   useEffect(() => {
+    const checkAndCreateParkingSlots = async () => {
+      try {
+        const response = await fetch(`${url}parkingslots`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+  
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.length > 0) {
+            setAvailableSlots(data);
+            return;
+          }
+        }
+  
     const fetchedSlots = [
       {
         id: 1,
@@ -97,12 +113,39 @@ const ParkingReservation = () => {
         coordinates: { lat: 38.1624474, lng: 14.7466575 },
       }
     ];
+
+    await Promise.all(fetchedSlots.map(async (slot) => {
+      const response = await fetch(`${url}parkingslots`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(slot),
+      });
+
+      if (!response.ok) {
+        
+        throw new Error('Errore durante il salvataggio del parcheggio');
+      }
+    }));
+
+   
     setAvailableSlots(fetchedSlots);
-  }, []);
+
+  } catch (error) {
+    console.error('Errore durante il caricamento dei parcheggi:', error);
+  }
+};
+
+checkAndCreateParkingSlots();
+}, [token]);
+  
 
   const handleSelectSlot = (Slot) => {
     setSelectedSlot(Slot);
   };
+  
 
  
 
@@ -121,10 +164,10 @@ const ParkingReservation = () => {
       setTimer(900);
   
       const bookingData = {
-        userId: userId, // Utilizza l'ID dell'utente dal Redux store
+        userId: userId,
         parkingSlotId: selectedSlot.id,
-        startTime: new Date(), // ora corrente
-        endTime: new Date(new Date().getTime() + duration * 60000), // aggiungi la durata in millisecondi
+        startTime: new Date(),
+        endTime: new Date(new Date().getTime() + duration * 60000), 
       };
   
       fetch(url + 'bookings', {

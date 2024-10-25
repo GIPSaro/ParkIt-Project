@@ -1,4 +1,4 @@
-import { REGISTER_USER } from "../actions/registerAdnPurchaseAction";
+import { REGISTER_USER } from "../actions/registerActions";
 
 const initialState = {
   user: null,
@@ -10,7 +10,6 @@ const reducer = (state = initialState, action) => {
       return {
         ...state,
         user: action.payload,
-         hasAnnualCard: action.payload.annualCard,
       };
     default:
       return state;

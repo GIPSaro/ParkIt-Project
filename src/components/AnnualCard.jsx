@@ -28,7 +28,7 @@ const AnnualCard = () => {
   
         const userData = await response.json();
         setUserData(userData);
-        // Controllo se 'hasAnnualCard' è definito in userData
+
         if (userData.hasAnnualCard !== undefined) {
           setHasAnnualCard(userData.hasAnnualCard);
         }

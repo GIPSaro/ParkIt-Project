@@ -5,8 +5,8 @@ import myVideo from '../assets/img/Handwritten Love Poster in White Black Backgr
 const MyHome = () => {
   return (
     <div className="container mt-3">
-      <h1 className="text-white mb-4">Benvenuto su ParkIt</h1>
-      <h1 className="text-white m-4">Trova il tuo parcheggio!</h1>
+      <h1 className="text-white mb-4">Welcome To Parkit!</h1>
+      <h1 className="text-white m-4">Find your Parking Space!</h1>
        <div className="map-container" >
        <video
           src={myVideo}
@@ -16,26 +16,23 @@ const MyHome = () => {
           autoPlay
           loop 
           muted 
-          playsInline // Evita il play button su mobile
-          disablePictureInPicture // Evita il PIP sui browser che lo supportano
-          controlsList="nodownload nofullscreen noplaybackrate" // Disabilita i controlli del video
-          className="video-animation" // Classe CSS per ulteriori stili
+        
        />
        </div>
     <div className="container container-home">
       
       <div className="card">
-        <h2>Accedi</h2>
-        <p>Scopri i migliori parcheggi disponibili nella tua zona.</p>
+        <h2>Login</h2>
+        <p>Discover the best parking available in your area.</p>
         <Link to="/login" className="ml-2">
-        <button className="btn-primary">Accedi</button>
+        <button className="btn-primary">Login</button>
         </Link>
       </div>
       <div className="card">
-        <h2>Registrati</h2>
-        <p>Iscriviti per ricevere offerte esclusive.</p>
+        <h2>Register</h2>
+        <p>Sign up to receive exclusive offers.</p>
         <Link to="/register" className="ml-2">
-        <button className="btn-primary">Registrati ora</button>
+        <button className="btn-primary">Sign Up</button>
         </Link>
       </div>
     </div>

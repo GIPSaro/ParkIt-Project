@@ -76,7 +76,7 @@ const MyNavBar = () => {
                 </li>
 
                 <li className="nav-item">
-                  <Link to="/users/:userId/annualCard/:cardId" className="nav-link">
+                  <Link to="annualCard" className="nav-link">
                     Fidelity Card
                   </Link>
                 </li>

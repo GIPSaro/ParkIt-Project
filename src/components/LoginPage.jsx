@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { loginAction } from "../Redux/actions/authActions";
-import { updateUserAction } from "../Redux/actions/userActions"; // Importa l'azione per aggiornare i dati dell'utente
+import { updateUserAction } from "../Redux/actions/userActions"; 
 import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
@@ -23,10 +23,10 @@ const LoginPage = () => {
         const result = await resp.json();
         console.log(result);
         if (result.accessToken) {
-          // Dispatcha l'azione di login
+     
           dispatch(loginAction({ email, role: result.role }, result.accessToken, result.role));
           
-          // Dispatcha l'azione per aggiornare i dati dell'utente
+        
           dispatch(updateUserAction({ email, role: result.role }));
 
           if (result.role === "ADMIN") {
